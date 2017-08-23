@@ -20,7 +20,8 @@ format_chat <- function(chat_txt){
     who = str_match(chat_txt, who)[,2],
     msg = str_match(chat_txt, msg)[,2]
   ) %>%
-    mutate(who = gsub('me', 'Gahoolee', who))
+    mutate(who = gsub('me', 'Gahoolee', who)) %>%
+    filter(!msg %in% c('.', '/'))
   df[!is.na(df$date),]
 }
 
@@ -86,14 +87,11 @@ analyse_conversation <- function(filename, filter.freq=2, filter.nchar=1, K=5, G
 
   ## sentiment
   if(draw.sentiment){
+    chat_sentiment <<- get_timeline_sentiment(chat, 'mix')
     sentiment_pdf_file <- file.path('results', conversation, 'sentiment.pdf')
-    cairo_pdf(sentiment_pdf_file, family = 'SimHei', onefile = T,
-              height = 2 * length(chat_seg_words), width = 12)
-    plot_sentiment_bar(chat_seg_words[!names(chat_seg_words) %in% 'MIX']) %>% print
-    dev.off()
+    plot_sentiment_all(chat_sentiment, conversation, sentiment_pdf_file)
   }
   
-  chat_sentiment <- get_timeline_sentiment(chat, 'mix')
 }
 
 Sys.setlocale(locale="zh_CN.UTF-8")
@@ -101,4 +99,5 @@ sentiment <- prepare_sentiment('sentiment/sentiment.txt')
 sentiment_anno<-read.delim('sentiment/sentiment_anno.txt', na.strings = '')
 stop <- scan('stop.txt', what='char', sep = '\n')
 analyse_conversation('dump/elfore.txt', filter.freq = 3, filter.nchar = 1,
-                     draw.wordcloud = F, draw.lda = F)
+                     draw.wordcloud = F, draw.sentiment = T, draw.lda = F,
+                     draw.plots = F)
