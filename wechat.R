@@ -21,7 +21,7 @@ format_chat <- function(chat_txt){
     msg = str_match(chat_txt, msg)[,2]
   ) %>%
     mutate(who = gsub('me', 'Gahoolee', who)) %>%
-    filter(!msg %in% c('.', '/'))
+    filter(!grepl('^\\.|^\\/|^~', msg))
   df[!is.na(df$date),]
 }
 
@@ -99,5 +99,5 @@ sentiment <- prepare_sentiment('sentiment/sentiment.txt')
 sentiment_anno<-read.delim('sentiment/sentiment_anno.txt', na.strings = '')
 stop <- scan('stop.txt', what='char', sep = '\n')
 analyse_conversation('dump/elfore.txt', filter.freq = 3, filter.nchar = 1,
-                     draw.wordcloud = F, draw.sentiment = T, draw.lda = F,
-                     draw.plots = F)
+                     draw.wordcloud = T, draw.sentiment = T, draw.lda = T,
+                     draw.plots = T)
